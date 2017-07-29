@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>songla</title>
+    <!-- 以下引入 react.js, react-dom.js（react 0.14 後將 react-dom 從 react 核心分離，更符合 react 跨平台抽象化的定位）以及 babel-core browser 版 -->
+</head>
+<body>
+<%- include ../partials/navigation.ejs %>
+<div class="content">
+<a href="new/">new authenticate</a><br/>
+Following are authenticate:<br/>
+<% if(authenticates_set.length >0){ %>
+<% authenticates_set.forEach(function(authenticate){ %>
+	<%= authenticate.authenticate_id %>:<%= authenticate.authenticate_name%>(<a href="delete/<%=authenticate.authenticate_id%>">delete</a>)<br/>
+	
+<% }); %>
+<% }else{ %>
+None.
+<% } %>
+</div>
+</body>
+
+</html>

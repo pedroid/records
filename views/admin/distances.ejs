@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>distance</title>
+    <!-- 以下引入 react.js, react-dom.js（react 0.14 後將 react-dom 從 react 核心分離，更符合 react 跨平台抽象化的定位）以及 babel-core browser 版 -->
+</head>
+<body>
+<%- include ../partials/navigation.ejs %>
+<div class="content">
+<a href="/admin/distances/new/">new distance</a><br/>
+Following are distances:<br/>
+
+<% if(distances_set.length >0){ %>
+<% distances_set.forEach(function(distance){ %>
+	<%= distance.distance_id %>:<%= distance.distance_name%>(<a href="delete/<%=distance.distance_id%>">delete</a>)<br/>
+	
+<% }); %>
+<% }else{ %>
+None.
+<% } %>
+</div>
+</body>
+
+</html>

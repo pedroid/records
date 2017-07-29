@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>songla</title>
+    <!-- 以下引入 react.js, react-dom.js（react 0.14 後將 react-dom 從 react 核心分離，更符合 react 跨平台抽象化的定位）以及 babel-core browser 版 -->
+</head>
+<body>
+<div class="navigation">
+<%- include partials/navigation.ejs %>
+</div>
+<div class="content">
+Following are all public records <br/>
+<br/>
+<% if(records_set.length>0){ %>
+<% records_set.forEach(function(record){ %>
+		<%= record.id %>:
+		<%= users_set[record.owner_id] %>
+		 <%= items_set[record.item_id]%>, 
+		<%= distances_set[record.distance_id] %>
+		<%= record.hour %>
+		<%= record.minute %>
+		<%= record.second %>
+		<%= record.millisecond %>
+		<%= authenticates_set[record.authenticate_id] %>
+		<%= record.month %>
+		<%= record.date %>
+		<br/>
+<% }); %>
+<% }else{ %>
+None.
+<% } %>
+
+</div>
+</body>
+
+</html>

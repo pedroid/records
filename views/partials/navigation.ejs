@@ -1,0 +1,11 @@
+<div class="nav">
+<% if (user){ %>
+hi, <%= user %> (<a href="/logout/">logout</a>),
+<ol>
+<li><a href="/new.html">new</a></li>
+</ol>
+<% }else{ %>
+<a href="/login.html">login</a>
+<a href="/register.html">register</a>
+<% } %>
+</div>

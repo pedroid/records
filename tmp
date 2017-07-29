@@ -1,0 +1,15 @@
+
+<!--
+<select name="item_id">
+<% items_set.forEach(function(item){ %>
+	<option value=<%= item.item_id %> > <%= item.item_name%></option>
+	<% }); %>
+</select>
+-->
+<!--
+<select name="authenticate_id">
+<% authenticates_set.forEach(function(authenticate){ %>
+	<option value=<%= authenticate.authenticate_id %> > <%=authenticate.authenticate_name%></option>
+	<% }); %>
+</select>
+-->

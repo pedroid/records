@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+</head>
+  <body> 
+    <form id="swim_record_new" method="POST" action="swim_record_new"
+      <label>owner</label>
+<select name="owner_id">
+	<% for(owner_option in table_owners){ %>
+	<option value=<%= owner_option %> > <%=table_owners[owner_option]%></option>
+	<% } %>
+</select><br/>
+      <label>score</label><input type="text" id="score" name="score" value="1234"/><br/>
+      <label>unit</label><input type="text" id="unit" name="unit" value="1234"/><br/>
+      <label>authenticate</label>
+<select name="authenticate_id">
+	<% for(authenticate_option in table_authenticates){ %>
+	<option value=<%= authenticate_option %> > <%=table_authenticates[authenticate_option]%></option>
+	<% } %>
+</select>
+      <input type="submit" value="送出" />
+    </form>
+  </body>
+</html>

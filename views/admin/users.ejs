@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>user</title>
+    <!-- 以下引入 react.js, react-dom.js（react 0.14 後將 react-dom 從 react 核心分離，更符合 react 跨平台抽象化的定位）以及 babel-core browser 版 -->
+</head>
+<body>
+<%- include ../partials/navigation.ejs %>
+<div class="content">
+<a href="new/">new user</a><br/>
+Following are users:<br/>
+
+<% if(users_set.length >0){ %>
+<% users_set.forEach(function(user){ %>
+	<%= user.user_id %>:<%= user.user_name%>,<%= user.password %>
+	(<a href="/admin/users/delete/<%=user.user_id%>">delete</a>)
+	<br/>
+	
+<% }); %>
+<% }else{ %>
+None.
+<% } %>
+</div>
+</body>
+
+</html>
