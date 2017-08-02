@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+</head>
+  <body> 
+<div class="navigation">
+<%- include ../partials/navigation.ejs %>
+</div>
+    <form id="swim_record_new" method="POST" action="/profile/records/record_edit">
+	<label>record_id</label>
+	<input type="hidden" id="record_id" name="record_id" value=<%= record_id %>><br/>
+	<input type="hidden" id="owner" name="owner_id" value=<%= record.owner_id %>><br/>
+
+	<label>item</label>
+<select name="item_id">
+<% for(item_id in items_set){ %>
+	<option value=<%= item_id %> > <%= items_set[item_id]%></option>
+	<% } %>
+</select>
+<br/>
+<label>distance</label>
+	<select name="distance_id">
+	<% for(distance_id in distances_set){ %>
+		<option value=<%= distance_id %> > <%= distances_set[distance_id]%></option>
+		<% } %>
+	</select>
+<br/>
+      <label>hour</label><input type="text" id="hour" name="hour" value=<%= record.hour %>><br/>
+      <label>minute</label><input type="text" id="minute" name="minute" value=<%= record.minute%>><br/>
+      <label>second</label><input type="text" id="second" name="second" value=<%= record.second %>><br/>
+      <label>millisecond</label><input type="text" id="millisecond" name="millisecond" value=<%= record.millisecond %>><br/>
+      <label>authenticate</label>
+	<select name="authenticate_id">
+	<% for(authenticate_id in authenticates_set){ %>
+		<% if (record.authenticate_id == i){ %> 
+		<option selected="selected" value=<%= authenticate_id %> > <%= authenticates_set[authenticate_id]%></option>
+		<% }else{ %>
+		<option value=<%= authenticate_id %> > <%= authenticates_set[authenticate_id]%></option>
+		<% } %>
+	<% } %>
+	</select>
+	<br/>
+      <label>year</label>
+	<select name="year">
+		<% for (var i=2017; i>=2010; i--){%>
+			<% if (record.year == i){ %> 
+		<option selected="selected" value= <%= i %> > <%= i %></option>
+			<% }else{ %>
+		
+		<option value= <%= i %> > <%= i %></option>
+			<% } %>
+		<% } %>
+	</select>
+      <label>month</label>
+	<select name="month">
+		<% for (var i=1; i<=12; i++){%>
+			<% if (record.month == i){ %> 
+		<option selected="selected" value= <%= i %> > <%= i %></option>
+			<% }else{ %>
+		<option value= <%= i %> > <%= i %></option>
+			<% } %>
+		<% } %>
+	</select>
+      <label>date</label>
+	<select name="date">
+		<% for (var i=1; i<=31; i++){%>
+			<% if (record.date == i){ %> 
+		<option selected="selected" value= <%= i %> > <%= i %></option>
+			<% }else{ %>
+		<option value= <%= i %> > <%= i %></option>
+			<% } %>
+		<% } %>
+	</select>
+      <input type="submit" value="送出" />
+      <input type="submit" value="送出" />
+    </form>
+  </body>
+</html>

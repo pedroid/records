@@ -5,7 +5,6 @@ var http = require('http')
 var url = require('url')
 var fs = require('fs')
 var io = require('socket.io')
-var compiler = require('./compiler.js')
 var hp = 0;
 var message_content;
 var app = express();
@@ -115,7 +114,7 @@ app.get('/logout', function(req, res){
 });
 app.get('/profile',function(req, res){
 	if(req.session.user){
-		api_sqlite.private_load_records(db, req, res);
+		api_sqlite.profile_load_records(db, req, res);
 	}else{
 		res.redirect('/');
 	}
@@ -140,6 +139,16 @@ app.get('/admin/users/new/',function(req, res){
 });
 app.get('/admin/records/delete/:id', function(req, res){
 	api_sqlite.admin_delete_record(db, req.params['id'], req, res);
+});
+app.get('/profile/records/delete/:id', function(req, res){
+	api_sqlite.profile_delete_record(db, req.params['id'], req, res);
+});
+app.get('/profile/records/edit/:id', function(req, res){
+	if(req.session.user){
+		api_sqlite.profile_edit_record(db, req.params['id'], req, res);
+	}else{
+		res.redirect('/');
+	}
 });
 app.get('/admin/items/delete/:id', function(req, res){
 	api_sqlite.admin_delete_item(db, req.params['id'], req, res);
@@ -168,6 +177,13 @@ app.get('/admin/todos/new/',function(req, res){
 });
 app.get('/admin/records', function(req, res){	
 	api_sqlite.admin_load_records(db, req, res);
+});
+app.get('/profile/records/new/',function(req, res){
+	if(req.session.user){
+		api_sqlite.profile_new_records(db, req, res);
+	}else{
+		res.redirect('/');
+	}
 });
 app.get('/admin/records/new/',function(req, res){
 	api_sqlite.admin_new_records(db, req, res);
@@ -382,6 +398,12 @@ app.post('/admin/authenticate/new/authenticate_new', function(req, res){
 	res.redirect('/admin/authenticate/');
 });
 
+app.post('/profile/records/record_edit', function(req, res){
+	api_sqlite.profile_edit_record_post(db, req, res);
+});
+app.post('/profile/records/record_new', function(req, res){
+	api_sqlite.profile_new_record_post(db, req, res);
+});
 app.post('/admin/records/swim_record_new', function(req, res){
 	api_sqlite.admin_new_record_post(db, req, res);
 });

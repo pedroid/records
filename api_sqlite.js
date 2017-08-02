@@ -61,6 +61,152 @@ exports.admin_delete_record = function(db, record_id, req, res){
 		});
 	});
 }
+exports.profile_delete_record = function(db, record_id, req, res){
+
+	db.serialize(function(){
+		var sql = "DELETE FROM table_record WHERE rowid=" + record_id;
+		db.run(sql, function(err){
+			res.redirect('/profile');	
+		});
+	});
+}
+exports.profile_edit_record_post = function(db, req, res){
+
+	db.serialize(function(){
+		var sql = "UPDATE table_record SET item_id= " + req.body.item_id + ", distance_id= "+ req.body.distance_id +", hour="+ req.body.hour+", minute="+req.body.minute+", second="+req.body.second+", millisecond="+req.body.millisecond+", authenticate_id="+req.body.authenticate_id+", year = " + req.body.year + ", month="+ req.body.month + ",date=" + req.body.date +" WHERE rowid=" + req.body.record_id;
+	//	console.log("sql:"+sql);
+		db.run(sql, function(err){
+			res.redirect('/profile');	
+		});
+	});
+}
+/*
+exports.profile_edit_record = function(db, record_id, req, res){
+
+	var self = this;
+	var obj_to_render;
+	console.log('record_id:'+record_id);
+	var items_set = {};
+	var distances_set = {};
+	var authenticates_set = {};
+	var choosed_record = [];
+	db.serialize(function(){
+		//var sql = "SELECT FROM table_record WHERE rowid=" + record_id;
+		var sql = "SELECT * FROM table_record where rowid=="+record_id; 
+		var sql_item = "SELECT rowid AS id, item_name FROM table_item"; 
+		var sql_distance = "SELECT rowid AS id, distance_name FROM table_distance"; 
+		var sql_authenticate = "SELECT rowid AS id, authenticate_name FROM table_authenticate_type"; 
+		//var sql = "SELECT rowid AS id, owner_id, item_id, distance_id, hour, minute, second, millisecond, authenticate_id, year, month, date FROM table_record"; 
+		db
+		.each(sql_authenticate, function(err, row){
+			if(err){
+				console.log(err);
+				res.end();
+			}else{}
+			authenticates_set[row.id] = row.authenticate_name;
+		})
+		.each(sql_item, function(err, row){
+			if(err){
+				console.log('sql_item:'+err);
+				res.end();
+			}else{}
+			items_set[row.id] = row.item_name;
+		})
+		.each(sql_distance, function(err, row){
+			if(err){
+				console.log('sql_distance:'+err);
+				res.end();
+			}else{}
+			distances_set[row.id] = row.distance_name;
+			//console.log(row);
+		})
+		.each(sql, function(err, row){
+			choosed_record.push(row);
+			self.obj_to_render.authenticates_set = authenticates_set;
+			self.obj_to_render.distances_set = distances_set;
+			self.obj_to_render.items_set = items_set;
+			self.obj_to_render.record = choosed_record;
+			//res.end();
+		}, function(){
+			res.render('profile/edit_record.ejs', self.obj_to_render);	
+			res.end();
+		});
+		
+	});
+}
+*/
+exports.profile_edit_record = function(db, record_id, req, res){
+	var self = this;
+	var obj_to_render = {user: req.session.user};
+	db.serialize(function() {
+		  var items_set = {};
+		  var authenticates_set = {};
+		  var distances_set = {};
+	 	  var users_set = [];
+		  //查詢資料
+		  var sql_record = "SELECT * FROM table_record where rowid=="+record_id; 
+		  var sql_user = "SELECT rowid AS id, user_name FROM table_user"; 
+		  var sql_item = "SELECT rowid AS id, item_name FROM table_item"; 
+		  var sql_authenticate = "SELECT rowid AS id, authenticate_name FROM table_authenticate_type"; 
+		  var sql_distance = "SELECT rowid AS id, distance_name FROM table_distance"; 
+		  db
+			.each(sql_record, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				record = row;
+			})
+			.each(sql_distance, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				distances_set[row.id] = row.distance_name;
+			})
+			.each(sql_authenticate, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				authenticates_set[row.id] = row.authenticate_name;
+			})
+			.each(sql_item, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				items_set[row.id] = row.item_name;
+			})
+			.each(sql_user, function(err, row) {
+				if(err){
+					console.log(err);
+					res.end();
+				}else{
+				
+				}
+				users_set.push({
+					user_id:row.id, 
+					user_name:row.user_name,
+				});
+
+
+		}, function(){
+				self.obj_to_render = {
+					record_id: record_id,
+					record: record,
+					user: req.session.user,
+					user_id: req.session.user_id,
+					users_set: users_set,
+					items_set: items_set,
+					authenticates_set: authenticates_set,
+					distances_set: distances_set
+				};
+		  self.profile_edit_records_rendering(res, self.obj_to_render);
+		});
+	});
+
+}
 exports.admin_delete_authenticate = function(db, authenticate_id, req, res){
 
 	db.serialize(function(){
@@ -161,15 +307,15 @@ exports.public_register_post = function(db, req, res){
 	if(req.body.password == req.body.password_confirm){
 		db.serialize(function(){
 			var lastID;
-			var sql = "INSERT INTO table_user (user_name, password) VALUES (?,?)";
+			var sql = "INSERT INTO table_user (user_name, password, lastname, firstname) VALUES (?,?,?,?)";
 			var sql_total_number = "SELECT Count(*) FROM table_user";
 			db
-			.each("CREATE TABLE IF NOT EXISTS table_user (user_name TEXT, password TEXT)")
-			.each(sql, [req.body.user, req.body.password])
+			.each("CREATE TABLE IF NOT EXISTS table_user (user_name TEXT, password TEXT, lastname TEXT, firstname TEXT)")
+			.each(sql, [req.body.user, req.body.password, req.body.lastname, req.body.firstname])
 			.each(sql_total_number,
 				function(err, result){
 					lastID = result['Count(*)'];
-					console.log(lastID);	
+					//console.log(lastID);	
 				},
 				function(){
 					self.lastID = lastID;
@@ -206,6 +352,69 @@ exports.admin_delete_user = function(db, user_id, req, res){
 			res.redirect('/admin/users/');	
 		});
 	});
+}
+exports.profile_new_records = function(db, req, res){
+	var self = this;
+	var obj_to_render = {user: req.session.user};
+	db.serialize(function() {
+		  var items_set = {};
+		  var authenticates_set = {};
+		  var distances_set = {};
+	 	  var users_set = [];
+		  //查詢資料
+		  var sql_user = "SELECT rowid AS id, user_name FROM table_user"; 
+		  var sql_item = "SELECT rowid AS id, item_name FROM table_item"; 
+		  var sql_authenticate = "SELECT rowid AS id, authenticate_name FROM table_authenticate_type"; 
+		  var sql_distance = "SELECT rowid AS id, distance_name FROM table_distance"; 
+		  db
+			.each(sql_distance, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				distances_set[row.id] = row.distance_name;
+			})
+			.each(sql_authenticate, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				authenticates_set[row.id] = row.authenticate_name;
+			})
+			.each(sql_item, function(err, row){
+				if(err){
+					console.log(err);
+					res.end();
+				}else{}
+				items_set[row.id] = row.item_name;
+			})
+			.each(sql_user, function(err, row) {
+				if(err){
+					console.log(err);
+					res.end();
+				}else{
+				
+				}
+				users_set.push({
+					user_id:row.id, 
+					user_name:row.user_name,
+				});
+				self.obj_to_render = {
+					user: req.session.user,
+					user_id: req.session.user_id,
+					users_set: users_set,
+					items_set: items_set,
+					authenticates_set: authenticates_set,
+					distances_set: distances_set
+				};
+
+
+		}, function(){
+		
+		  self.profile_new_records_rendering(res, self.obj_to_render);
+		});
+	});
+
 }
 exports.admin_new_records = function(db, req, res){
 	var self = this;
@@ -270,6 +479,21 @@ exports.admin_new_records = function(db, req, res){
 
 }
 
+exports.profile_new_record_post = function(db, req, res){
+	db.serialize(function() {
+		  //如果表格test01不存在，就新增test01
+		  db.run("CREATE TABLE IF NOT EXISTS  table_record (owner_id INTEGER, item_id INTEGER, distance_id INTEGER, hour INTEGER, minute INTEGER, second INTEGER, millisecond INTEGER, authenticate_id INTEGER, year INTEGER, month INTEGER, date INTEGER)");
+		    
+		  //新增資料
+		  var sql01 = "INSERT INTO table_record(owner_id, item_id, distance_id, hour, minute, second, millisecond,  authenticate_id, year, month, date) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+		  db.run(sql01,[req.body.owner_id, req.body.item_id, req.body.distance_id, req.body.hour, req.body.minute, req.body.second, req.body.millisecond, req.body.authenticate_id, req.body.year, req.body.month, req.body.date]);
+		 res.redirect('/profile');
+
+	});
+}
+exports.admin_new_records_rendering = function(res, obj_to_render){
+	res.render('admin/new_record.ejs', obj_to_render);
+};
 exports.admin_new_record_post = function(db, req, res){
 	db.serialize(function() {
 		  //如果表格test01不存在，就新增test01
@@ -286,7 +510,13 @@ exports.admin_new_records_rendering = function(res, obj_to_render){
 	res.render('admin/new_record.ejs', obj_to_render);
 };
 
-exports.private_load_records = function(db, req, res){
+exports.profile_new_records_rendering = function(res, obj_to_render){
+	res.render('profile/new_record.ejs', obj_to_render);
+};
+exports.profile_edit_records_rendering = function(res, obj_to_render){
+	res.render('profile/edit_record.ejs', obj_to_render);
+};
+exports.profile_load_records = function(db, req, res){
 	var self = this;
 	var obj_to_render;
 	if(req.session.user){
@@ -294,9 +524,9 @@ exports.private_load_records = function(db, req, res){
 	}else{
 		self.obj_to_render = {user: ''};
 	}
-	console.log('user_id:'+req.session.user_id);
+	//console.log('user_id:'+req.session.user_id);
 	//var sql02 = "SELECT rowid AS id, owner_id, item_id, distance_id, hour, minute, second, millisecond, authenticate_id, year, month, date FROM table_record"; 
-	var sql02 = "SELECT rowid AS id, owner_id, item_id, distance_id, hour, minute, second, millisecond, authenticate_id, year, month, date FROM table_record where owner_id=="+req.session.user_id; 
+	var sql02 = "SELECT rowid AS id, owner_id, item_id, distance_id, hour, minute, second, millisecond, authenticate_id, year, month, date FROM table_record where owner_id=="+req.session.user_id+" order by year desc, month desc, date desc"; 
 	//var sql02 = "SELECT rowid AS id, owner_id, item_id, score, unit_id, authenticate_id FROM table_record"; 
 	var records_set = [];
 	var items_set = {};
@@ -363,6 +593,7 @@ exports.private_load_records = function(db, req, res){
 					second: row.second,
 					millisecond: row.millisecond,
 					authenticate_id: row.authenticate_id,
+					year: row.year,
 					month: row.month,
 					date: row.date
 				});
@@ -392,16 +623,19 @@ exports.public_load_records = function(db, req, res){
 	}else{
 		self.obj_to_render = {user: ''};
 	}
-	var sql02 = "SELECT rowid AS id, owner_id, item_id, distance_id, hour, minute, second, millisecond, authenticate_id, year, month, date FROM table_record where authenticate_id == 3"; 
+	var sql02 = "SELECT rowid AS id, owner_id, item_id, distance_id, hour, minute, second, millisecond, authenticate_id, year, month, date FROM table_record where authenticate_id == 3 order by year DESC, month DESC, date DESC"; 
 	//var sql02 = "SELECT rowid AS id, owner_id, item_id, score, unit_id, authenticate_id FROM table_record"; 
 	var records_set = [];
 	var items_set = {};
 	var authenticates_set = {};
 	var distances_set = {};
 	var users_set = {};
+	var admin_levels_set = {};
+	var firstnames_set = {};
+	var lastnames_set = {};
 	var user_id_list = [];
 	//查詢資料
-	var sql_user = "SELECT rowid AS id, user_name FROM table_user"; 
+	var sql_user = "SELECT rowid AS id, user_name, firstname, lastname, admin_level FROM table_user"; 
 	var sql_item = "SELECT rowid AS id, item_name FROM table_item"; 
 	var sql_authenticate = "SELECT rowid AS id, authenticate_name FROM table_authenticate_type"; 
 	var sql_distance = "SELECT rowid AS id, distance_name FROM table_distance"; 
@@ -459,6 +693,7 @@ exports.public_load_records = function(db, req, res){
 					second: row.second,
 					millisecond: row.millisecond,
 					authenticate_id: row.authenticate_id,
+					year: row.year,
 					month: row.month,
 					date: row.date
 				});
@@ -467,15 +702,21 @@ exports.public_load_records = function(db, req, res){
 		})
 		.each(sql_user, function(err, row){
 			users_set[row.id] = row.user_name;
+			lastnames_set[row.id] = row.lastname;
+			firstnames_set[row.id] = row.firstname;
+			admin_levels_set[row.id] = row.admin_level;
 			//console.log(row.user_name);
 		}, function(){
 	//	console.log('user_id_list:'+user_id_list);
 		//console.log(users_set);
 		self.obj_to_render.users_set = users_set;
+		self.obj_to_render.lastnames_set = lastnames_set;
+		self.obj_to_render.firstnames_set = firstnames_set;
 		self.obj_to_render.records_set = records_set;
 		self.obj_to_render.items_set = items_set;
 		self.obj_to_render.authenticates_set = authenticates_set;
 		self.obj_to_render.distances_set = distances_set;
+		self.obj_to_render.admin_levels_set = admin_levels_set;
 		
 		res.render('index.ejs', self.obj_to_render);
 	} );

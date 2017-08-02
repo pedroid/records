@@ -4,27 +4,53 @@
 	<meta charset="UTF-8">
 	<title>songla</title>
     <!-- 以下引入 react.js, react-dom.js（react 0.14 後將 react-dom 從 react 核心分離，更符合 react 跨平台抽象化的定位）以及 babel-core browser 版 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css">
 </head>
 <body>
 <div class="navigation">
 <%- include partials/navigation.ejs %>
 </div>
 <div class="content">
-Following are all private records <br/>
+<div id="visualization"></div>
+
+
+
+<script type="text/javascript">
+	
+    var container = document.getElementById('visualization');
+var items=[];
+
+<% for(var i=0;i<records_set.length;i++){ %>
+items.push({x:<%= records_set[i].year%>+'-'+<%= records_set[i].month %>+'-'+ <%= records_set[i].date %>, y:<%= records_set[i].minute*60+records_set[i].second %>});
+//items.push({x:'2014-06-12', y:<%= records_set[i].minute*60+records_set[i].second %>});
+<% } %>
+
+	
+ var dataset = new vis.DataSet(items);
+ //var dataset = new vis.DataSet(JSON.stringify(items));
+  var options = {
+    start: <%= records_set[records_set.length-1].year-1 %>+'-'+ <%= records_set[records_set.length-1].month%> +'-'+<%= records_set[records_set.length-1].date %>,
+    end: <%= records_set[0].year+1 %>+'-'+ <%= records_set[0].month%> +'-'+<%= records_set[0].date %>,
+  };
+  var graph2d = new vis.Graph2d(container, dataset, options);
+</script>
+Following are <%=user%>  's private records <br/>
 <br/>
 <% if(records_set.length>0){ %>
-<% records_set.forEach(function(record){ %>
-		<%= record.id %>:
-		<%= users_set[record.owner_id] %>
+<% records_set.forEach(function(record){ %>[
 		 <%= items_set[record.item_id]%>, 
-		<%= distances_set[record.distance_id] %>
-		<%= record.hour %>
-		<%= record.minute %>
-		<%= record.second %>
+		<%= distances_set[record.distance_id] %>]
+		<%= record.hour %>:
+		<%= record.minute %>:
+		<%= record.second %>:
 		<%= record.millisecond %>
+		<%= record.year %>/
+		<%= record.month %>/
+		<%= record.date %>,
 		<%= authenticates_set[record.authenticate_id] %>
-		<%= record.month %>
-		<%= record.date %>
+		(<a href="/profile/records/edit/<%=record.id%>">edit</a>,
+		<a href="/profile/records/delete/<%=record.id%>">delete</a>)
 		<br/>
 <% }); %>
 <% }else{ %>
